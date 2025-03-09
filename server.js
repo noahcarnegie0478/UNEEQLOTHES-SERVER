@@ -34,16 +34,14 @@ app.use(passport.session());
 app.get("/users", (req, res) => {
   res.json(users);
 });
-app.get("/", (req, res) => {
-  console.log("Session data:", req.session);
-  console.log("User from session:", req.user);
+app.get("/", checkAuthenticated, (req, res) => {
   if (!req.user) {
     return res.send("Not log in yet!");
   }
   res.send(`Hello, ${req.user.name}!`);
 });
 //register
-app.post("/users/register", async (req, res) => {
+app.post("/users/register", checkNotAuthenticated, async (req, res) => {
   try {
     const salt = await bcrypt.genSalt();
 
@@ -65,11 +63,32 @@ app.post("/users/register", async (req, res) => {
 
 app.post(
   "/users/login",
+  checkNotAuthenticated,
   passport.authenticate("local", {
     successRedirect: "/",
     failureRedirect: "/users/login",
     failureFlash: true,
   })
 );
+app.get("/users/login", (req, res) => {
+  res.send("Login page");
+});
+
+function checkAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect("/users/login");
+}
+function checkNotAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return res.redirect("/");
+  }
+  next();
+}
+app.delete("/logout", (req, res) => {
+  req.logOut();
+  res.redirect("/users/login");
+});
 
 app.listen(3000);

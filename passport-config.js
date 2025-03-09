@@ -21,7 +21,6 @@ function initializePassport(passport, getUserByName, getUserById) {
   };
   passport.use(new LocalStrategy({ usernameField: "name" }, authenticateUser));
   passport.serializeUser((user, done) => {
-    console.log(user.id);
     return done(null, user.id);
   });
 
