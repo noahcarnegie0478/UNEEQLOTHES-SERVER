@@ -1,5 +1,9 @@
-const { authenticate } = require("passport");
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
+
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const LocalStrategy = require("passport-local").Strategy;
 function initializePassport(passport, getUserByName, getUserById) {
@@ -11,7 +15,8 @@ function initializePassport(passport, getUserByName, getUserById) {
     }
     try {
       if (await bcrypt.compare(password, user.password)) {
-        return done(null, user);
+        const accessToken = generateAccessToken(user);
+        return done(null, user, { accessToken: accessToken });
       } else {
         return done(null, false, { message: "Password is incorrect" });
       }
@@ -25,9 +30,20 @@ function initializePassport(passport, getUserByName, getUserById) {
   });
 
   passport.deserializeUser((id, done) => {
-    console.log("user id is: " + id);
     return done(null, getUserById(id));
   });
+}
+function generateAccessToken(user) {
+  return jwt.sign(
+    {
+      id: user.id,
+      name: user.name,
+      role: user.role,
+    },
+    process.env.ACCESS_TOKEN_SECRET,
+
+    { expiresIn: "15m" }
+  );
 }
 
 module.exports = initializePassport;

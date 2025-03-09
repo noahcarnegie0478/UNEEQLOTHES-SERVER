@@ -8,7 +8,7 @@ const methodOverride = require("method-override");
 app.use(express.json());
 const bcrypt = require("bcrypt");
 const users = [];
-
+const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const flash = require("express-flash");
 const session = require("express-session");
@@ -34,23 +34,23 @@ app.use(passport.session());
 app.get("/users", (req, res) => {
   res.json(users);
 });
-app.get("/", checkAuthenticated, (req, res) => {
-  if (!req.user) {
-    return res.send("Not log in yet!");
-  }
-  res.send(`Hello, ${req.user.name}!`);
+app.get("/", checkAuthenticated, authenticateToken, (req, res) => {
+  console.log(req.user.role);
+  console.log(users.filter(user => user.name === req.user.name));
+  res.json(users.filter(user => user.name === req.user.name));
 });
 //register
 app.post("/users/register", checkNotAuthenticated, async (req, res) => {
   try {
     const salt = await bcrypt.genSalt();
 
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    // console.log(salt + " " + hashedPassword);
+    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
     const user = {
       id: new Date().toISOString(),
       name: req.body.name,
       password: hashedPassword,
+      role: req.body.role,
     };
     users.push(user);
 
@@ -61,15 +61,23 @@ app.post("/users/register", checkNotAuthenticated, async (req, res) => {
   }
 });
 
-app.post(
-  "/users/login",
-  checkNotAuthenticated,
-  passport.authenticate("local", {
-    successRedirect: "/",
-    failureRedirect: "/users/login",
-    failureFlash: true,
-  })
-);
+app.post("/users/login", checkNotAuthenticated, (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return res.redirect("/users/login");
+    }
+    req.logIn(user, err => {
+      if (err) {
+        return next(err);
+      }
+      const token = info.accessToken;
+      return res.json({ message: "Login Successful", token });
+    });
+  })(req, res, next);
+});
 app.get("/users/login", (req, res) => {
   res.send("Login page");
 });
@@ -85,6 +93,17 @@ function checkNotAuthenticated(req, res, next) {
     return res.redirect("/");
   }
   next();
+}
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (token == null) return res.sendStatus(401);
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
 }
 app.delete("/logout", (req, res) => {
   req.logOut();
