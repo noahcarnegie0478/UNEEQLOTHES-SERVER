@@ -4,6 +4,8 @@ if (process.env.NODE_ENV !== "production") {
 
 const express = require("express");
 const app = express();
+const methodOverride = require("method-override");
+app.use(express.json());
 const bcrypt = require("bcrypt");
 const users = [];
 
@@ -13,17 +15,11 @@ const session = require("express-session");
 const initializePassport = require("./passport-config");
 initializePassport(
   passport,
-  email => users.find(user => user.email === email),
+  name => users.find(user => user.name === name),
   id => users.find(user => user.id === id)
 );
-
-app.use(express.json());
-
-//get all users
-app.get("/users", (req, res) => {
-  res.json(users);
-});
-app.use(express.urlencoded({ extended: false }));
+app.use(methodOverride("_method")) /
+  app.use(express.urlencoded({ extended: false }));
 app.use(flash());
 app.use(
   session({
@@ -35,10 +31,22 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.get("/users", (req, res) => {
+  res.json(users);
+});
+app.get("/", (req, res) => {
+  console.log("Session data:", req.session);
+  console.log("User from session:", req.user);
+  if (!req.user) {
+    return res.send("Not log in yet!");
+  }
+  res.send(`Hello, ${req.user.name}!`);
+});
 //register
 app.post("/users/register", async (req, res) => {
   try {
-    // const salt = await bcrypt.genSalt();
+    const salt = await bcrypt.genSalt();
+
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     // console.log(salt + " " + hashedPassword);
     const user = {
@@ -47,6 +55,7 @@ app.post("/users/register", async (req, res) => {
       password: hashedPassword,
     };
     users.push(user);
+
     res.status(201).send();
   } catch (error) {
     res.status(500).send();
@@ -54,28 +63,13 @@ app.post("/users/register", async (req, res) => {
   }
 });
 
-//login
-// app.post("/users/login", async (req, res) => {
-//   const user = users.find(user => (user.name = req.body.name));
-//   if (user == null) {
-//     return res.status(400).send(" Cannot find user");
-//   }
-//   try {
-//     if (await bcrypt.compare(req.body.password, user.password)) {
-//       res.send("Success");
-//     } else {
-//       res.send("Not Allow");
-//     }
-//   } catch (error) {
-//     res.status(500).send();
-//   }
-// });
 app.post(
-  "/user/login",
+  "/users/login",
   passport.authenticate("local", {
     successRedirect: "/",
-    failureRedirect: "/login",
+    failureRedirect: "/users/login",
     failureFlash: true,
   })
 );
+
 app.listen(3000);
