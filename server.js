@@ -24,13 +24,9 @@ const flash = require("express-flash");
 //save all state of user
 const session = require("express-session");
 //
-const initializePassport = require("./passport-config");
+const initialize = require("./passport-config");
 
-initializePassport(
-  passport,
-  name => users.find(user => user.name === name),
-  id => users.find(user => user.id === id)
-);
+initialize(passport, db.getUserbyEmail, db.getUserById);
 app.use(methodOverride("_method")) /
   app.use(express.urlencoded({ extended: false }));
 app.use(flash());
@@ -52,8 +48,6 @@ app.get("/users", checkAuthenticated, authenticateToken, (req, res) => {
 
 //get user form database
 app.get("/api/users", db.getUsers);
-//get user by id from database
-app.get("/api/users/:id", db.getUserById);
 //create user for database
 app.post("/api/users/register", db.createUser);
 //update user by id
@@ -63,10 +57,13 @@ app.delete("/api/users/delete/:id", db.deleteUser);
 
 //
 
+//get user by id from database
+app.post("/api/users/getemail", db.getUserbyEmail);
+//
+
 app.get("/", checkAuthenticated, authenticateToken, (req, res) => {
   console.log(req.user.role);
-  console.log(users.filter(user => user.name === req.user.name));
-  res.json(users.filter(user => user.name === req.user.name));
+  console.log(req.user);
 });
 //register
 app.post("/users/register", checkNotAuthenticated, async (req, res) => {
@@ -91,6 +88,7 @@ app.post("/users/register", checkNotAuthenticated, async (req, res) => {
 });
 //login
 app.post("/users/login", checkNotAuthenticated, (req, res, next) => {
+  console.log(req.body.email);
   passport.authenticate("local", (err, user, info) => {
     if (err) {
       return next(err);
