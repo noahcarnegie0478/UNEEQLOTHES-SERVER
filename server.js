@@ -1,18 +1,31 @@
+//set up environment
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
-
+const bodyParser = require("body-parser");
 const express = require("express");
 const app = express();
+// incase we use html, method override can help to transform post, get into put or delete
 const methodOverride = require("method-override");
+//middle-ware to analyze json
 app.use(express.json());
+//hash password
 const bcrypt = require("bcrypt");
+//database
+const db = require("./users.service");
+//empty user list
 const users = [];
+//jwt
 const jwt = require("jsonwebtoken");
+//passport
 const passport = require("passport");
+//display temporary message
 const flash = require("express-flash");
+//save all state of user
 const session = require("express-session");
+//
 const initializePassport = require("./passport-config");
+
 initializePassport(
   passport,
   name => users.find(user => user.name === name),
@@ -31,9 +44,25 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get("/users", (req, res) => {
+app.get("/users", checkAuthenticated, authenticateToken, (req, res) => {
   res.json(users);
 });
+
+//USER DATABASE COMMUNICATION
+
+//get user form database
+app.get("/api/users", db.getUsers);
+//get user by id from database
+app.get("/api/users/:id", db.getUserById);
+//create user for database
+app.post("/api/users/register", db.createUser);
+//update user by id
+app.put("/api/users/update/:id", db.updateUser);
+//delete user by id
+app.delete("/api/users/delete/:id", db.deleteUser);
+
+//
+
 app.get("/", checkAuthenticated, authenticateToken, (req, res) => {
   console.log(req.user.role);
   console.log(users.filter(user => user.name === req.user.name));
@@ -60,7 +89,7 @@ app.post("/users/register", checkNotAuthenticated, async (req, res) => {
     console.error(error);
   }
 });
-
+//login
 app.post("/users/login", checkNotAuthenticated, (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) {
