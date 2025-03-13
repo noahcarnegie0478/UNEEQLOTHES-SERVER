@@ -4,6 +4,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 const bodyParser = require("body-parser");
 const express = require("express");
+const cors = require("cors");
 const app = express();
 // incase we use html, method override can help to transform post, get into put or delete
 const methodOverride = require("method-override");
@@ -12,7 +13,12 @@ app.use(express.json());
 //hash password
 const bcrypt = require("bcrypt");
 //database
-const db = require("./users.service");
+const db = require("./services/users.service");
+//banner database
+const banner = require("./services/banner.service");
+
+//banner database
+const category = require("./services/category.service");
 //empty user list
 const users = [];
 //jwt
@@ -24,11 +30,20 @@ const flash = require("express-flash");
 //save all state of user
 const session = require("express-session");
 //
-const initialize = require("./passport-config");
+const initialize = require("./authentication/passport-config");
 
 initialize(passport, db.getUserbyEmail, db.getUserById);
 app.use(methodOverride("_method")) /
   app.use(express.urlencoded({ extended: false }));
+app.use(cors());
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
 app.use(flash());
 app.use(
   session({
@@ -51,41 +66,44 @@ app.get("/api/users", db.getUsers);
 //create user for database
 app.post("/api/users/register", db.createUser);
 //update user by id
-app.put("/api/users/update/:id", db.updateUser);
+app.put(
+  "/api/users/update/:id",
+  checkAuthenticated,
+  authenticateToken,
+  db.updateUser
+);
 //delete user by id
 app.delete("/api/users/delete/:id", db.deleteUser);
 
-//
-
 //get user by id from database
 app.post("/api/users/getemail", db.getUserbyEmail);
-//
+
+//BANNER DATABASE COMMUNICATION
+
+//get all category
+app.get("/api/category/", category.getCategory);
+
+//create category
+app.post("/api/category/create", category.createCategory);
 
 app.get("/", checkAuthenticated, authenticateToken, (req, res) => {
   console.log(req.user.role);
   console.log(req.user);
 });
-//register
-app.post("/users/register", checkNotAuthenticated, async (req, res) => {
-  try {
-    const salt = await bcrypt.genSalt();
 
-    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+//BANNER DATABASE COMMUNICATION
 
-    const user = {
-      id: new Date().toISOString(),
-      name: req.body.name,
-      password: hashedPassword,
-      role: req.body.role,
-    };
-    users.push(user);
+//get all banner
+app.get("/api/banner/", banner.getBanners);
 
-    res.status(201).send();
-  } catch (error) {
-    res.status(500).send();
-    console.error(error);
-  }
+//create banner
+app.post("/api/banner/create", banner.createBanner);
+
+app.get("/", checkAuthenticated, authenticateToken, (req, res) => {
+  console.log(req.user.role);
+  console.log(req.user);
 });
+
 //login
 app.post("/users/login", checkNotAuthenticated, (req, res, next) => {
   console.log(req.body.email);
