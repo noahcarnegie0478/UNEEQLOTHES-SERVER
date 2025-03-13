@@ -16,9 +16,10 @@ const bcrypt = require("bcrypt");
 const db = require("./services/users.service");
 //banner database
 const banner = require("./services/banner.service");
-
-//banner database
+//category database
 const category = require("./services/category.service");
+//category database
+const items = require("./services/items.service");
 //empty user list
 const users = [];
 //jwt
@@ -78,13 +79,24 @@ app.delete("/api/users/delete/:id", db.deleteUser);
 //get user by id from database
 app.post("/api/users/getemail", db.getUserbyEmail);
 
-//BANNER DATABASE COMMUNICATION
+//CATEGORY DATABASE COMMUNICATION
 
 //get all category
 app.get("/api/category/", category.getCategory);
 
 //create category
 app.post("/api/category/create", category.createCategory);
+
+//ITEMS DATABASE COMMUNICATION
+
+//get all item
+app.get("/api/item/", items.getItems);
+
+//create item
+app.post("/api/item/create", items.createItems);
+
+//testing debug
+app.post("/testing", items.testing);
 
 app.get("/", checkAuthenticated, authenticateToken, (req, res) => {
   console.log(req.user.role);
