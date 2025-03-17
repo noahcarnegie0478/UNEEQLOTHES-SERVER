@@ -36,11 +36,12 @@ const createItems = (req, res) => {
     fabric_detail,
     washing_instruction,
     category_id,
+    price,
   } = req.body;
 
   try {
     pool.query(
-      "INSERT INTO items (item_id, category, topic, title, sizes, stock, colors, image_paths, material,feature_details, rating, fabric_detail, washing_instruction,category_id) VALUES ($1, $2, $3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *",
+      "INSERT INTO items (item_id, category, topic, title, sizes, stock, colors, image_paths, material,feature_details, rating, fabric_detail, washing_instruction,category_id,price) VALUES ($1, $2, $3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *",
       [
         item_id,
         category,
@@ -56,10 +57,12 @@ const createItems = (req, res) => {
         fabric_detail,
         washing_instruction,
         category_id,
+        price,
       ],
       (err, results) => {
         console.log(req.body);
         if (err) {
+          throw err;
           if (err.code === "23505") {
             return res.status(400).json({ error: "Items already existed" });
           }
