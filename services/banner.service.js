@@ -57,6 +57,7 @@ const createBanner = (req, res) => {
       ],
       (err, results) => {
         if (err) {
+          throw err;
           if (err.code === "23505") {
             return res.status(400).json({ error: "Banner already existed" });
           }

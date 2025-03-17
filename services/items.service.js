@@ -35,11 +35,12 @@ const createItems = (req, res) => {
     rating,
     fabric_detail,
     washing_instruction,
+    category_id,
   } = req.body;
 
   try {
     pool.query(
-      "INSERT INTO items (item_id, category, topic, title, sizes, stock, colors, image_paths, material,feature_details, rating, fabric_detail, washing_instruction) VALUES ($1, $2, $3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *",
+      "INSERT INTO items (item_id, category, topic, title, sizes, stock, colors, image_paths, material,feature_details, rating, fabric_detail, washing_instruction,category_id) VALUES ($1, $2, $3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *",
       [
         item_id,
         category,
@@ -54,6 +55,7 @@ const createItems = (req, res) => {
         rating,
         fabric_detail,
         washing_instruction,
+        category_id,
       ],
       (err, results) => {
         console.log(req.body);

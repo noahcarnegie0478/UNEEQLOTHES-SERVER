@@ -29,6 +29,7 @@ const createCategory = (req, res) => {
       [category_id, tag, title, image_path, recommendations],
       (err, results) => {
         if (err) {
+          throw err;
           if (err.code === "23505") {
             return res.status(400).json({ error: "Category already existed" });
           }
@@ -48,18 +49,3 @@ module.exports = {
   getCategory,
   createCategory,
 };
-
-// INSERT INTO categories (
-//     category_id ,
-//     tag ,
-//     title ,
-//     image_path ,
-//     recommendations
-
-// ) VALUES (
-// '46577',
-//     'Women',
-//     'Jeans' ,
-//     '123.jpg' ,
-//     ARRAY['Women: T-shirt','Women: Dress']
-// )
