@@ -29,6 +29,7 @@ const createCategory = (req, res) => {
       [category_id, tag, title, image_path, recommendations],
       (err, results) => {
         if (err) {
+          // @REVIEW - `throw err` will happen before everything else so the remaining logic will be useless
           throw err;
           if (err.code === "23505") {
             return res.status(400).json({ error: "Category already existed" });
@@ -38,7 +39,7 @@ const createCategory = (req, res) => {
         res
           .status(200)
           .send(`Banner has been added with id:${results.rows[0].id}`);
-      }
+      },
     );
   } catch (error) {
     res.status(500).json({ error: "Server error" });
