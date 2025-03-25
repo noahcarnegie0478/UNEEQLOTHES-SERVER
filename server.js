@@ -102,6 +102,9 @@ app.get("/", checkAuthenticated, authenticateToken, (req, res) => {
   console.log(req.user.role);
   console.log(req.user);
 });
+//get category item
+
+app.post("/api/item/category", items.CategoryListing);
 
 //BANNER DATABASE COMMUNICATION
 

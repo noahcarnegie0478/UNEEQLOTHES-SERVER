@@ -103,10 +103,27 @@ const testing = (req, res) => {
   }
 };
 
+//find items by category
+const CategoryListing = (req, res) => {
+  const { topic, category } = req.body;
+  pool.query(
+    "SELECT * FROM items where topic = $1 and category = $2 ORDER BY id ASC",
+    [topic, category],
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      res.status(200).json(results.rows);
+    }
+  );
+};
+
+// select * from items where topic = 'Men' and category = 'T-shirt';
 module.exports = {
   getItems,
   createItems,
   testing,
+  CategoryListing,
 };
 
 // item_id, category, topic, title, sizes, stock, colors, image_paths, material,feature_details, rating, fabric_detail, washing_instruction
