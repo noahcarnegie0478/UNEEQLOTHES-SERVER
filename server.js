@@ -103,8 +103,10 @@ app.get("/", checkAuthenticated, authenticateToken, (req, res) => {
   console.log(req.user);
 });
 //get category item
-
 app.post("/api/item/category", items.CategoryListing);
+
+//get items by keywords
+app.post("/api/item/fulltext", items.GetFullText);
 
 //BANNER DATABASE COMMUNICATION
 
