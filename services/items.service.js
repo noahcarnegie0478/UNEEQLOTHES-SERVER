@@ -131,6 +131,112 @@ const GetFullText = (req, res) => {
     }
   );
 };
+//filter items
+const filterItems = async (req, res) => {
+  const { colors, material, price } = await req.body;
+  const priceElement = price.split(" ");
+  //scenerios:
+  // just colour -
+  try {
+    if (colors !== "*" && material === "*" && price === "*") {
+      pool.query(
+        "SELECT * FROM items WHERE search_vector @@ to_tsquery('english', $1)",
+        [colors],
+        (error, results) => {
+          if (error) {
+            throw error;
+          }
+          res.status(200).json(results.rows);
+        }
+      );
+    }
+    // just material -
+    else if (colors === "*" && material !== "*" && price === "*") {
+      pool.query(
+        "SELECT * FROM items WHERE material = $1",
+        [material],
+        (error, results) => {
+          if (error) {
+            throw error;
+          }
+          res.status(200).json(results.rows);
+        }
+      );
+    }
+    // just price -
+    else if (colors === "*" && material === "*" && price !== "*") {
+      pool.query(
+        "SELECT * FROM items WHERE price between $1 and $2",
+        [priceElement[0], priceElement[priceElement.length - 1]],
+        (error, results) => {
+          if (error) {
+            throw error;
+          }
+          res.status(200).json(results.rows);
+        }
+      );
+    }
+    // colour and material -
+    else if (colors !== "*" && material !== "*" && price === "*") {
+      pool.query(
+        "SELECT * FROM items WHERE search_vector @@ to_tsquery('english', $1) and material = $2",
+        [colors, material],
+        (error, results) => {
+          if (error) {
+            throw error;
+          }
+          res.status(200).json(results.rows);
+        }
+      );
+    }
+    // colour and price -
+    else if (colors !== "*" && material === "*" && price !== "*") {
+      pool.query(
+        "SELECT * FROM items WHERE search_vector @@ to_tsquery('english', $1) and price between $2 and $3",
+        [colors, priceElement[0], priceElement[priceElement.length - 1]],
+        (error, results) => {
+          if (error) {
+            throw error;
+          }
+          res.status(200).json(results.rows);
+        }
+      );
+    }
+    // material and price -
+    else if (colors === "*" && material !== "*" && price !== "*") {
+      pool.query(
+        "SELECT * FROM items WHERE price between $1 and $2 and material = $3",
+        [priceElement[0], priceElement[priceElement.length - 1], material],
+        (error, results) => {
+          if (error) {
+            throw error;
+          }
+          res.status(200).json(results.rows);
+        }
+      );
+    }
+    // material-price-colour
+    else if (colors !== "*" && material !== "*" && price !== "*") {
+      pool.query(
+        "SELECT * FROM items WHERE search_vector @@ to_tsquery('english', $1) and price between $2 and $3 and material = $4",
+        [
+          colors,
+          priceElement[0],
+          priceElement[priceElement.length - 1],
+          material,
+        ],
+        (error, results) => {
+          if (error) {
+            throw error;
+          }
+          res.status(200).json(results.rows);
+        }
+      );
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 // select * from items where topic = 'Men' and category = 'T-shirt';
 module.exports = {
@@ -139,6 +245,7 @@ module.exports = {
   testing,
   CategoryListing,
   GetFullText,
+  filterItems,
 };
 
 // item_id, category, topic, title, sizes, stock, colors, image_paths, material,feature_details, rating, fabric_detail, washing_instruction

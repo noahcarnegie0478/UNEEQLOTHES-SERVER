@@ -59,7 +59,16 @@ app.use(passport.session());
 app.get("/users", checkAuthenticated, authenticateToken, (req, res) => {
   res.json(users);
 });
-
+//////////////////////////
+//                     //
+//                    //
+//            /////////
+//           //
+//          //
+//     //////
+//    //
+//   //
+//////
 //USER DATABASE COMMUNICATION
 
 //get user form database
@@ -78,7 +87,16 @@ app.delete("/api/users/delete/:id", db.deleteUser);
 
 //get user by id from database
 app.post("/api/users/getemail", db.getUserbyEmail);
-
+//////////////////////////
+//                     //
+//                    //
+//            /////////
+//           //
+//          //
+//     //////
+//    //
+//   //
+//////
 //CATEGORY DATABASE COMMUNICATION
 
 //get all category
@@ -108,6 +126,18 @@ app.post("/api/item/category", items.CategoryListing);
 //get items by keywords
 app.post("/api/item/fulltext", items.GetFullText);
 
+//filter items
+app.post("/api/item/filter", items.filterItems);
+//////////////////////////
+//                     //
+//                    //
+//            /////////
+//           //
+//          //
+//     //////
+//    //
+//   //
+//////
 //BANNER DATABASE COMMUNICATION
 
 //get all banner
@@ -120,7 +150,16 @@ app.get("/", checkAuthenticated, authenticateToken, (req, res) => {
   console.log(req.user.role);
   console.log(req.user);
 });
-
+//////////////////////////
+//                     //
+//                    //
+//            /////////
+//           //
+//          //
+//     //////
+//    //
+//   //
+//////
 //login
 app.post("/users/login", checkNotAuthenticated, (req, res, next) => {
   console.log(req.body.email);
@@ -143,6 +182,16 @@ app.post("/users/login", checkNotAuthenticated, (req, res, next) => {
 app.get("/users/login", (req, res) => {
   res.send("Login page");
 });
+//////////////////////////
+//                     //
+//                    //
+//            /////////
+//           //
+//          //
+//     //////
+//    //
+//   //
+//////
 
 function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
