@@ -28,6 +28,7 @@ const getUserbyEmail = async email => {
     const result = await pool.query("SELECT * FROM users WHERE email = $1", [
       email,
     ]);
+    console.log(result.rows[0]);
     return result.rows[0];
   } catch (error) {
     throw error;

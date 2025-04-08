@@ -83,8 +83,13 @@ app.put(
 //delete user by id
 app.delete("/api/users/delete/:id", db.deleteUser);
 
-//get user by id from database
+//get user by email from database
 app.post("/api/users/getemail", db.getUserbyEmail);
+
+//home
+app.get("/", authenticateToken, (req, res) => {
+  res.status(200).json(req.user);
+});
 //////////////////////////
 //                     //
 //                    //
@@ -114,10 +119,6 @@ app.post("/api/item/create", items.createItems);
 //testing debug
 app.post("/testing", items.testing);
 
-app.get("/", checkAuthenticated, authenticateToken, (req, res) => {
-  console.log(req.user.role);
-  console.log(req.user);
-});
 //get category item
 app.post("/api/item/category", items.CategoryListing);
 
@@ -147,10 +148,6 @@ app.get("/api/banner/", banner.getBanners);
 //create banner
 app.post("/api/banner/create", banner.createBanner);
 
-app.get("/", checkAuthenticated, authenticateToken, (req, res) => {
-  console.log(req.user.role);
-  console.log(req.user);
-});
 //////////////////////////
 //                     //
 //                    //
@@ -181,7 +178,7 @@ app.post("/users/login", checkNotAuthenticated, (req, res, next) => {
   })(req, res, next);
 });
 app.get("/users/login", (req, res) => {
-  res.send("Login page");
+  res.send("Login is right here");
 });
 //////////////////////////
 //                     //
