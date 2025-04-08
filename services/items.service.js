@@ -131,6 +131,25 @@ const GetFullText = (req, res) => {
     }
   );
 };
+// find items in wishlist
+const getWishList = (req, res) => {
+  const { wishlist } = req.body;
+  console.log("wish list: ", wishlist);
+  const itemInWishList = `(${wishlist.join()})`;
+  console.log("wish list after change: ", itemInWishList);
+
+  pool.query(
+    "SELECT * FROM items WHERE item_id in ($1)",
+    [itemInWishList],
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      res.status(200).json(results.rows);
+    }
+  );
+};
+const setTheRighString = ([]) => {};
 //filter items
 const filterItems = async (req, res) => {
   const { colors, material, price } = await req.body;
@@ -246,17 +265,5 @@ module.exports = {
   CategoryListing,
   GetFullText,
   filterItems,
+  getWishList,
 };
-
-// item_id, category, topic, title, sizes, stock, colors, image_paths, material,feature_details, rating, fabric_detail, washing_instruction
-
-// '[ {
-//             "name": "Red",
-//             "code": "31",
-//             "color_image": "1c381cef65afb24867d0d0f0643eeb58.png"
-//         },
-//         {
-//             "name": "Blue",
-//             "code": "45",
-//             "color_image": "abcde123456789.png"
-//         }]'

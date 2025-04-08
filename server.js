@@ -10,8 +10,7 @@ const app = express();
 const methodOverride = require("method-override");
 //middle-ware to analyze json
 app.use(express.json());
-//hash password
-const bcrypt = require("bcrypt");
+
 //database
 const db = require("./services/users.service");
 //banner database
@@ -34,8 +33,7 @@ const session = require("express-session");
 const initialize = require("./authentication/passport-config");
 
 initialize(passport, db.getUserbyEmail, db.getUserById);
-app.use(methodOverride("_method")) /
-  app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -128,6 +126,9 @@ app.post("/api/item/fulltext", items.GetFullText);
 
 //filter items
 app.post("/api/item/filter", items.filterItems);
+
+//get wishlist of items
+app.post("/api/item/wishlist", items.getWishList);
 //////////////////////////
 //                     //
 //                    //
