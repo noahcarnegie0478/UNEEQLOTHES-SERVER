@@ -60,6 +60,7 @@ function generateAccessToken(user) {
   return jwt.sign(
     {
       id: user.id,
+      username: user.username,
       email: user.email,
       role: user.role,
       date_of_birth: user.date_of_birth,

@@ -74,13 +74,8 @@ app.get("/api/users", db.getUsers);
 //create user for database
 app.post("/api/users/register", db.createUser);
 //update user by id
-app.put(
-  "/api/users/update/:id",
-  checkAuthenticated,
-  authenticateToken,
-  db.updateUser
-);
-//delete user by id
+app.put("/api/users/update/:id", authenticateToken, db.updateUser);
+//delete user by idx
 app.delete("/api/users/delete/:id", db.deleteUser);
 
 //get user by email from database

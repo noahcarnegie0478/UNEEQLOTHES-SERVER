@@ -91,10 +91,12 @@ const createUser = async (req, res) => {
 
 const updateUser = (req, res) => {
   const id = parseInt(req.params.id);
-  const { name, email } = req.body;
+  const { favourite } = req.body;
+  const favouriteList = `{ ${favourite.join()}}`;
+  console.log(favouriteList);
   pool.query(
-    "UPDATE users SET name = $1, email = $2 WHERE id = $3",
-    [name, email, id],
+    "UPDATE users SET favourite =$1 WHERE id = $2;",
+    [favouriteList, id],
 
     (err, results) => {
       if (err) {
