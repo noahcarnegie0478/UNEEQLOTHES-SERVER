@@ -57,7 +57,7 @@ function initializePassport(passport, getUserbyEmail, getUserById) {
   });
 }
 function generateAccessToken(user) {
-  return jwt.sign(
+  const token = jwt.sign(
     {
       id: user.id,
       username: user.username,
@@ -72,8 +72,11 @@ function generateAccessToken(user) {
     },
     process.env.ACCESS_TOKEN_SECRET,
 
-    { expiresIn: "1h" }
+    { expiresIn: "15m" }
   );
+
+  console.log("Generated accessToken:", token);
+  return token;
 }
 
 module.exports = initializePassport;
