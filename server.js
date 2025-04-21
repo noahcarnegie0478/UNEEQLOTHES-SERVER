@@ -8,6 +8,11 @@ const cors = require("cors");
 const app = express();
 // incase we use html, method override can help to transform post, get into put or delete
 const methodOverride = require("method-override");
+// app.post("/webhook", express.raw({ type: "application/json" }), (req, res) => {
+//   console.log("Webhook received");
+
+//   res.json({ received: true });
+// });
 //middle-ware to analyze json
 app.use(express.json());
 
@@ -190,22 +195,39 @@ app.get("/users/login", (req, res) => {
 //    //
 //   //
 //////
+//webhook
+
+app.post(
+  "/webhook",
+  express.json({ type: "application/json" }),
+  (request, response) => {
+    const event = request.body;
+
+    // Handle the event
+    switch (event.type) {
+      case "payment_intent.succeeded":
+        const paymentIntent = event.data.object;
+        console.log("payment succeed made: ", paymentIntent);
+
+        break;
+      case "payment_method.attached":
+        const paymentMethod = event.data.object;
+
+        break;
+
+      default:
+        console.log(`Unhandled event type ${event.type}`);
+    }
+
+    // Return a response to acknowledge receipt of the event
+    response.json({ received: true });
+  }
+);
+
+//checkout session
 app.post("/create-checkout-session", async (req, res) => {
   try {
     const { item } = req.body;
-    console.log(
-      item.map(itm => ({
-        price_data: {
-          currency: "aud",
-          unit_amount: itm.price,
-          product_data: {
-            name: itm.name,
-            images: [itm.image],
-          },
-        },
-        quantity: 1,
-      }))
-    );
 
     console.log("run");
     const session = await stripe.checkout.sessions.create({
@@ -225,7 +247,7 @@ app.post("/create-checkout-session", async (req, res) => {
       success_url: `${process.env.SUCCESS}?success=true`,
       cancel_url: `${process.env.CANCLE}?canceled=true`,
     });
-    console.log(session);
+
     res.json({ url: session.url, id: session.id });
   } catch (error) {
     console.log(error);
