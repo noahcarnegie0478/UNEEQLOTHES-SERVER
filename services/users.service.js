@@ -92,7 +92,7 @@ const createUser = async (req, res) => {
 const updateUser = (req, res) => {
   const id = parseInt(req.params.id);
   const { favourite } = req.body;
-  const favouriteList = `{ ${favourite.join()}}`;
+  const favouriteList = `{${favourite.join()}}`;
   console.log(favouriteList);
   pool.query(
     "UPDATE users SET favourite =$1 WHERE id = $2;",
@@ -103,6 +103,26 @@ const updateUser = (req, res) => {
         throw err;
       }
       res.status(200).send(`User modified with id:${id}`);
+    }
+  );
+};
+//PUT: /api/users/:id | updatecartUser()
+
+const updateCart = (req, res) => {
+  const id = parseInt(req.params.id);
+  const { cart } = req.body;
+  // const cartList = JSON.stringify(cart);
+  // console.log(cartList);
+
+  pool.query(
+    "UPDATE users SET cart =$1 WHERE id = $2;",
+    [cart, id],
+
+    (err, results) => {
+      if (err) {
+        throw err;
+      }
+      res.status(200).send(`User's cart modified with id:${id}`);
     }
   );
 };
@@ -127,7 +147,7 @@ const findUserById = (req, res) => {
   const { user_id } = req.body;
   console.log(user_id);
   pool.query(
-    "SELECT id,username, email, date_of_birth, favourite, paid_items, coupon FROM users WHERE id = $1",
+    "SELECT id,username, email, date_of_birth, favourite, paid_items, coupon, cart FROM users WHERE id = $1",
     [user_id],
     (err, result) => {
       if (err) {
@@ -146,4 +166,5 @@ module.exports = {
   deleteUser,
   getUserbyEmail,
   findUserById,
+  updateCart,
 };

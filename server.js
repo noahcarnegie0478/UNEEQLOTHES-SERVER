@@ -31,6 +31,7 @@ const flash = require("express-flash");
 const session = require("express-session");
 //
 const initialize = require("./authentication/passport-config");
+const stripe = require("stripe")(process.env.STRIPE_SECRETKEY);
 
 initialize(passport, db.getUserbyEmail, db.getUserById);
 app.use(express.urlencoded({ extended: false }));
@@ -75,6 +76,8 @@ app.get("/api/users", db.getUsers);
 app.post("/api/users/register", db.createUser);
 //update user by id
 app.put("/api/users/update/:id", authenticateToken, db.updateUser);
+//update user's cart by id
+app.put("/api/users/updatecart/:id", authenticateToken, db.updateCart);
 //delete user by idx
 app.delete("/api/users/delete/:id", db.deleteUser);
 
@@ -178,8 +181,60 @@ app.get("/users/login", (req, res) => {
   res.send("Login is right here");
 });
 //////////////////////////
-//                     //
-//                    //
+//     Stripe          //
+//     Area           //
+//            /////////
+//           //
+//          //
+//     //////
+//    //
+//   //
+//////
+app.post("/create-checkout-session", async (req, res) => {
+  try {
+    const { item } = req.body;
+    console.log(
+      item.map(itm => ({
+        price_data: {
+          currency: "aud",
+          unit_amount: itm.price,
+          product_data: {
+            name: itm.name,
+            images: [itm.image],
+          },
+        },
+        quantity: 1,
+      }))
+    );
+
+    console.log("run");
+    const session = await stripe.checkout.sessions.create({
+      line_items: item.map(itm => ({
+        price_data: {
+          currency: "aud",
+          unit_amount: Math.round(itm.price * 100),
+          product_data: {
+            name: itm.title,
+
+            images: [itm.image_paths[0]],
+          },
+        },
+        quantity: 1,
+      })),
+      mode: "payment",
+      success_url: `${process.env.SUCCESS}?success=true`,
+      cancel_url: `${process.env.CANCLE}?canceled=true`,
+    });
+    console.log(session);
+    res.json({ url: session.url, id: session.id });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+//////////////////////////
+//     Stripe          //
+//     Area           //
 //            /////////
 //           //
 //          //

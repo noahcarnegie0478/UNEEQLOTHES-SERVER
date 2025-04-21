@@ -69,6 +69,7 @@ function generateAccessToken(user) {
       credit: user.credit,
       coupon: user.coupon,
       paid_items: user.paid_items,
+      cart: user.cart,
     },
     process.env.ACCESS_TOKEN_SECRET,
 
