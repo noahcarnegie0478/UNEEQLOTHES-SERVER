@@ -81,6 +81,8 @@ app.delete("/api/users/delete/:id", db.deleteUser);
 //get user by email from database
 app.post("/api/users/getemail", db.getUserbyEmail);
 
+// get user by id
+app.post("/api/users/getsbyid", authenticateToken, db.findUserById);
 //home
 app.get("/", authenticateToken, (req, res) => {
   res.status(200).json(req.user);

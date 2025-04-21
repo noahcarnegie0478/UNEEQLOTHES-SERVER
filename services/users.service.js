@@ -122,6 +122,21 @@ const deleteUser = (req, res) => {
     }
   );
 };
+//findUser after update
+const findUserById = (req, res) => {
+  const { user_id } = req.body;
+  console.log(user_id);
+  pool.query(
+    "SELECT id,username, email, date_of_birth, favourite, paid_items, coupon FROM users WHERE id = $1",
+    [user_id],
+    (err, result) => {
+      if (err) {
+        throw err;
+      }
+      res.status(200).json(result.rows);
+    }
+  );
+};
 
 module.exports = {
   getUsers,
@@ -130,4 +145,5 @@ module.exports = {
   updateUser,
   deleteUser,
   getUserbyEmail,
+  findUserById,
 };
