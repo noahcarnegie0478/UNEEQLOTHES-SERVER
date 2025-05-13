@@ -151,7 +151,7 @@ app.post("/api/item/wishlist", items.getWishList);
 //get feedback for a single item
 app.post("/api/feedback/get", feedback.getFeedback);
 //post feedback for a single item
-app.post("/api/feedback/get", feedback.createFeedback);
+app.post("/api/feedback/create", feedback.createFeedback);
 
 //////////////////////////
 //                     //

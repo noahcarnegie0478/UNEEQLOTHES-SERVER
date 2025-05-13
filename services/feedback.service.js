@@ -11,21 +11,17 @@ const pool = new Pool({
 });
 
 const createFeedback = (req, res) => {
-  const { comment_id, item_id, user_id, comment, rating, username } = req.body;
+  const { item_id, user_id, comment, rating, username } = req.body;
 
   try {
     pool.query(
-      "INSERT INTO feedbacks(comment_id, item_id, user_id, comment, rating, username) VALUES ( $1, $2, $3, $4, $5, $6)",
-      [comment_id, item_id, user_id, comment, rating, username],
+      "INSERT INTO feedbacks(item_id, user_id, comment, rating, username) VALUES ( $1, $2, $3, $4, $5 )",
+      [item_id, user_id, comment, rating, username],
       (err, results) => {
         if (err) {
           throw err;
-          if (err.code === "23505") {
-            return res.status(400).json({ error: "Category already existed" });
-          }
-          return res.status(500).json({ error: err });
         }
-        res.status(200).send(`comment has been added:${results.rows[0].id}`);
+        res.status(200).send(`comment has been added`);
       }
     );
   } catch (error) {
