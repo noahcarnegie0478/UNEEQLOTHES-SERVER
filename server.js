@@ -18,12 +18,14 @@ app.use(express.json());
 
 //database
 const db = require("./services/users.service");
-//banner database
+//banner
 const banner = require("./services/banner.service");
-//category database
+//category
 const category = require("./services/category.service");
-//category database
+//category
 const items = require("./services/items.service");
+//feedback
+const feedback = require("./services/feedback.service");
 //empty user list
 const users = [];
 //jwt
@@ -73,7 +75,7 @@ app.get("/users", checkAuthenticated, authenticateToken, (req, res) => {
 //    //
 //   //
 //////
-//USER DATABASE COMMUNICATION
+//USER TABLE COMMUNICATION
 
 //get user form database
 app.get("/api/users", db.getUsers);
@@ -105,7 +107,7 @@ app.get("/", authenticateToken, (req, res) => {
 //    //
 //   //
 //////
-//CATEGORY DATABASE COMMUNICATION
+//CATEGORY TABLE COMMUNICATION
 
 //get all category
 app.get("/api/category/", category.getCategory);
@@ -113,7 +115,7 @@ app.get("/api/category/", category.getCategory);
 //create category
 app.post("/api/category/create", category.createCategory);
 
-//ITEMS DATABASE COMMUNICATION
+//ITEMS TABLE COMMUNICATION
 
 //get all item
 app.get("/api/item/", items.getItems);
@@ -145,7 +147,24 @@ app.post("/api/item/wishlist", items.getWishList);
 //    //
 //   //
 //////
-//BANNER DATABASE COMMUNICATION
+//FEEDBACK TABLE COMMUNICATION
+//get feedback for a single item
+app.post("/api/feedback/get", feedback.getFeedback);
+//post feedback for a single item
+app.post("/api/feedback/get", feedback.createFeedback);
+
+//////////////////////////
+//                     //
+//                    //
+//            /////////
+//           //
+//          //
+//     //////
+//    //
+//   //
+//////
+
+//BANNER TABLE COMMUNICATION
 
 //get all banner
 app.get("/api/banner/", banner.getBanners);
@@ -238,10 +257,10 @@ app.post("/create-checkout-session", async (req, res) => {
           product_data: {
             name: itm.title,
 
-            images: [itm.image_paths[0]],
+            images: [itm.image_path],
           },
         },
-        quantity: 1,
+        quantity: itm.quatity,
       })),
       mode: "payment",
       success_url: `${process.env.SUCCESS}?success=true`,
