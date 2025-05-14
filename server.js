@@ -151,7 +151,12 @@ app.post("/api/item/wishlist", items.getWishList);
 //get feedback for a single item
 app.post("/api/feedback/get", feedback.getFeedback);
 //post feedback for a single item
-app.post("/api/feedback/create", feedback.createFeedback);
+app.post(
+  "/api/feedback/create",
+  checkAuthenticated,
+  authenticateToken,
+  feedback.createFeedback
+);
 
 //////////////////////////
 //                     //
@@ -308,9 +313,17 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
-app.delete("/logout", (req, res) => {
-  req.logOut();
-  res.redirect("/users/login");
+// app.delete("/logout", (req, res) => {
+//   req.logOut();
+//   // res.redirect("/users/login");
+// });
+app.post("/logout", function (req, res, next) {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/users/login");
+  });
 });
 
 app.listen(3000);
