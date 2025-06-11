@@ -97,6 +97,7 @@ app.post("/api/users/getsbyid", authenticateToken, db.findUserById);
 app.get("/", authenticateToken, (req, res) => {
   res.status(200).json(req.user);
 });
+
 //////////////////////////
 //                     //
 //                    //
