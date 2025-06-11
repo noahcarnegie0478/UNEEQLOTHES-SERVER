@@ -118,18 +118,23 @@ const CategoryListing = (req, res) => {
   );
 };
 //find items by any keywords
-const GetFullText = (req, res) => {
+const GetFullText = async (req, res) => {
   const { input } = req.body;
-  pool.query(
-    "SELECT * FROM items WHERE search_vector @@ to_tsquery('english', $1)",
-    [input],
-    (error, results) => {
-      if (error) {
-        throw error;
-      }
-      res.status(200).json(results.rows);
+  try {
+    const byVector =
+      "SELECT * FROM items WHERE search_vector @@ to_tsquery('english', $1)";
+    const vectorResult = await pool.query(byVector, [input]);
+    const byFuzzy = `SELECT  *, searchable <-> $1  AS distance FROM items ORDER  BY distance ASC LIMIT  10`;
+    const fuzzyResult = await pool.query(byFuzzy, [input]);
+
+    if (vectorResult.rowCount > 0) {
+      return res.status(200).json(vectorResult.rows);
+    } else {
+      return res.status(200).json(fuzzyResult.rows);
     }
-  );
+  } catch (error) {
+    throw error;
+  }
 };
 // find items in wishlist
 const getWishList = (req, res) => {
