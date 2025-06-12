@@ -26,6 +26,9 @@ const category = require("./services/category.service");
 const items = require("./services/items.service");
 //feedback
 const feedback = require("./services/feedback.service");
+
+// chatbot
+const chatbot = require("./services/chatbot.service");
 //empty user list
 const users = [];
 //jwt
@@ -158,6 +161,8 @@ app.post(
   authenticateToken,
   feedback.createFeedback
 );
+//CHATBOT COMMUNICATION
+app.post("/api/answer/get", chatbot.retreiveInput);
 
 //////////////////////////
 //                     //
