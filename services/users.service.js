@@ -28,7 +28,6 @@ const getUserbyEmail = async email => {
     const result = await pool.query("SELECT * FROM users WHERE email = $1", [
       email,
     ]);
-    console.log(result.rows[0]);
     return result.rows[0];
   } catch (error) {
     throw error;
@@ -93,7 +92,6 @@ const updateUser = (req, res) => {
   const id = parseInt(req.params.id);
   const { favourite } = req.body;
   const favouriteList = `{${favourite.join()}}`;
-  console.log(favouriteList);
   pool.query(
     "UPDATE users SET favourite =$1 WHERE id = $2;",
     [favouriteList, id],
@@ -145,7 +143,6 @@ const deleteUser = (req, res) => {
 //findUser after update
 const findUserById = (req, res) => {
   const { user_id } = req.body;
-  console.log(user_id);
   pool.query(
     "SELECT id,username, email, date_of_birth, favourite, paid_items, coupon, cart FROM users WHERE id = $1",
     [user_id],

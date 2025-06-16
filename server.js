@@ -6,13 +6,6 @@ const bodyParser = require("body-parser");
 const express = require("express");
 const cors = require("cors");
 const app = express();
-// incase we use html, method override can help to transform post, get into put or delete
-const methodOverride = require("method-override");
-// app.post("/webhook", express.raw({ type: "application/json" }), (req, res) => {
-//   console.log("Webhook received");
-
-//   res.json({ received: true });
-// });
 //middle-ware to analyze json
 app.use(express.json());
 
@@ -26,6 +19,8 @@ const category = require("./services/category.service");
 const items = require("./services/items.service");
 //feedback
 const feedback = require("./services/feedback.service");
+//checkout
+const checkout = require("./services/stripe.service");
 
 // chatbot
 const chatbot = require("./services/chatbot.service");
@@ -230,59 +225,11 @@ app.get("/users/login", (req, res) => {
 app.post(
   "/webhook",
   express.json({ type: "application/json" }),
-  (request, response) => {
-    const event = request.body;
-
-    // Handle the event
-    switch (event.type) {
-      case "payment_intent.succeeded":
-        const paymentIntent = event.data.object;
-        console.log("payment succeed made: ", paymentIntent);
-
-        break;
-      case "payment_method.attached":
-        const paymentMethod = event.data.object;
-
-        break;
-
-      default:
-        console.log(`Unhandled event type ${event.type}`);
-    }
-
-    // Return a response to acknowledge receipt of the event
-    response.json({ received: true });
-  }
+  checkout.listenToService
 );
 
 //checkout session
-app.post("/create-checkout-session", async (req, res) => {
-  try {
-    const { item } = req.body;
-
-    console.log("run");
-    const session = await stripe.checkout.sessions.create({
-      line_items: item.map(itm => ({
-        price_data: {
-          currency: "aud",
-          unit_amount: Math.round(itm.price * 100),
-          product_data: {
-            name: itm.title,
-
-            images: [itm.image_path],
-          },
-        },
-        quantity: itm.quatity,
-      })),
-      mode: "payment",
-      success_url: `${process.env.SUCCESS}?success=true`,
-      cancel_url: `${process.env.CANCLE}?canceled=true`,
-    });
-
-    res.json({ url: session.url, id: session.id });
-  } catch (error) {
-    console.log(error);
-  }
-});
+app.post("/create-checkout-session", checkout.checkoutSession);
 
 //////////////////////////
 //     Stripe          //
@@ -310,7 +257,6 @@ function checkNotAuthenticated(req, res, next) {
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
-  console.log("token after login: ", token);
   if (token == null) return res.sendStatus(401);
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
@@ -319,10 +265,6 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
-// app.delete("/logout", (req, res) => {
-//   req.logOut();
-//   // res.redirect("/users/login");
-// });
 app.post("/logout", function (req, res, next) {
   req.logout(function (err) {
     if (err) {

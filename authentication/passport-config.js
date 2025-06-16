@@ -75,8 +75,6 @@ function generateAccessToken(user) {
 
     { expiresIn: "15m" }
   );
-
-  console.log("Generated accessToken:", token);
   return token;
 }
 
