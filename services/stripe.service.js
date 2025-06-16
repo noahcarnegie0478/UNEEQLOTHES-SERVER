@@ -44,10 +44,32 @@ const checkoutSession = async (req, res) => {
         user_id: user,
       },
     });
-
+    console.log("user_id:", user);
     res.json({ url: session.url, id: session.id });
   } catch (error) {
     console.log(error);
+  }
+};
+const insertOrder = async (session, user_id, now, id, color, size) => {
+  try {
+    const result = await pool.query(
+      "INSERT INTO orders (order_id,customer_id, order_date, item_id, color, size ) VALUES ($1,$2, $3, $4, $5, $6 )",
+      [session.id, user_id, now, id, color, size]
+    );
+    if (result) {
+      console.log("Successfully added!");
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+const removeCart = async user_id => {
+  const result = await pool.query(
+    "UPDATE users SET cart = '{}'::jsonb[] WHERE id = $1",
+    [user_id]
+  );
+  if (result) {
+    console.log("Successfully Clear Cart of user:", user_id);
   }
 };
 
@@ -65,7 +87,7 @@ const listenToService = async (request, response) => {
   //       endpointSecret
   //     );
   //   } catch (err) {
-  //     console.log(`⚠️  Webhook signature verification failed.`, err.message);
+  //     console.log(` Webhook signature verification failed.`, err.message);
   //     return response.sendStatus(400);
   //   }
   // }
@@ -79,6 +101,7 @@ const listenToService = async (request, response) => {
     case "checkout.session.completed":
       const session = event.data.object;
       const { user_id } = session.metadata;
+      console.log("user_id:", user_id);
       console.log("This is user id:", user_id);
       const lineItemsResp = await stripe.checkout.sessions.listLineItems(
         session.id,
@@ -92,19 +115,16 @@ const listenToService = async (request, response) => {
           const productData = item.price.product;
           const { size, color, id } = productData.metadata;
           const now = new Date();
-          console.log(now);
-          try {
-            const result = await pool.query(
-              "INSERT INTO orders (order_id,customer_id, order_date, item_id, color, size ) VALUES ($1,$2, $3, $4, $5, $6 )",
-              [session.id, user_id, now, id, color, size]
-            );
-            if (result) {
-              console.log("Successfully added!");
-            }
-          } catch (error) {
-            throw error;
-          }
+          const storingOrder = insertOrder(
+            session,
+            user_id,
+            now,
+            id,
+            color,
+            size
+          );
         }
+        removeCart(user_id);
       }
 
       break;
