@@ -88,7 +88,7 @@ const createUser = async (req, res) => {
 };
 //PUT: /api/users/:id | updateUser()
 
-const updateUser = (req, res) => {
+const updateFavourite = (req, res) => {
   const id = parseInt(req.params.id);
   const { favourite } = req.body;
   const favouriteList = `{${favourite.join()}}`;
@@ -119,6 +119,33 @@ const updateCart = (req, res) => {
         throw err;
       }
       res.status(200).send(`User's cart modified with id:${id}`);
+    }
+  );
+};
+const findCartById = (req, res) => {
+  const { user_id } = req.body;
+  pool.query(
+    "SELECT cart FROM users WHERE id = $1",
+    [user_id],
+    (err, result) => {
+      if (err) {
+        throw err;
+      }
+      res.status(200).json(result.rows);
+    }
+  );
+};
+
+const findFavouriteById = (req, res) => {
+  const { user_id } = req.body;
+  pool.query(
+    "SELECT favourite FROM users WHERE id = $1",
+    [user_id],
+    (err, result) => {
+      if (err) {
+        throw err;
+      }
+      res.status(200).json(result.rows);
     }
   );
 };
@@ -158,9 +185,11 @@ module.exports = {
   getUsers,
   getUserById,
   createUser,
-  updateUser,
+  updateFavourite,
   deleteUser,
   getUserbyEmail,
   findUserById,
   updateCart,
+  findCartById,
+  findFavouriteById,
 };

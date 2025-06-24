@@ -80,7 +80,7 @@ app.get("/api/users", db.getUsers);
 //create user for database
 app.post("/api/users/register", db.createUser);
 //update user by id
-app.put("/api/users/update/:id", authenticateToken, db.updateUser);
+app.put("/api/users/update/:id", authenticateToken, db.updateFavourite);
 //update user's cart by id
 app.put("/api/users/updatecart/:id", authenticateToken, db.updateCart);
 //delete user by idx
@@ -95,6 +95,12 @@ app.post("/api/users/getsbyid", authenticateToken, db.findUserById);
 app.get("/", authenticateToken, (req, res) => {
   res.status(200).json(req.user);
 });
+app.post("/api/users/getcartbyid", authenticateToken, db.findCartById);
+app.post(
+  "/api/users/getfavouritebyid",
+  authenticateToken,
+  db.findFavouriteById
+);
 
 //////////////////////////
 //                     //
