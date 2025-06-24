@@ -109,8 +109,6 @@ const updateUser = (req, res) => {
 const updateCart = (req, res) => {
   const id = parseInt(req.params.id);
   const { cart } = req.body;
-  // const cartList = JSON.stringify(cart);
-  // console.log(cartList);
 
   pool.query(
     "UPDATE users SET cart =$1 WHERE id = $2;",
@@ -124,6 +122,7 @@ const updateCart = (req, res) => {
     }
   );
 };
+
 //DELETE: /api/users/:id | deleteUser()
 const deleteUser = (req, res) => {
   const id = parseInt(req.params.id);

@@ -28,7 +28,6 @@ function initializePassport(passport, getUserbyEmail, getUserById) {
   const authenticateUser = async (email, password, done) => {
     try {
       const user = await getUserbyEmail(email);
-
       if (user == null) {
         return done(null, false, { message: "No user with that email" });
       }
