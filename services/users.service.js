@@ -131,7 +131,7 @@ const findCartById = (req, res) => {
       if (err) {
         throw err;
       }
-      res.status(200).json(result.rows);
+      res.status(200).json(result.rows[0]);
     }
   );
 };
@@ -145,7 +145,7 @@ const findFavouriteById = (req, res) => {
       if (err) {
         throw err;
       }
-      res.status(200).json(result.rows);
+      res.status(200).json(result.rows[0]);
     }
   );
 };
