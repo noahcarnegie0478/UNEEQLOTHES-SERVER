@@ -7,11 +7,6 @@ const {
 } = require("@aws-sdk/client-bedrock-agent-runtime");
 const client = new BedrockAgentRuntimeClient({
   region: "us-east-1",
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_SECRET_KEY,
-  },
-  enableTrace: true,
 });
 const FoundationModel = Object.freeze({
   CLAUDE_3_SONNET: {
