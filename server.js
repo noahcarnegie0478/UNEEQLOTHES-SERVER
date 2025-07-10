@@ -76,7 +76,7 @@ app.get("/users", checkAuthenticated, authenticateToken, (req, res) => {
 //USER TABLE COMMUNICATION
 
 //get user form database
-app.get("/api/users", db.getUsers);
+// app.get("/api/users", db.getUsers);
 //create user for database
 app.post("/api/users/register", db.createUser);
 //update user by id

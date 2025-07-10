@@ -45,7 +45,7 @@ const getUserById = async id => {
 };
 //post: /api/users/register | createUser()
 const createUser = async (req, res) => {
-  const { username, email, password, dob } = req.body;
+  const { username, email, password } = req.body;
   const role = "user";
   const subscribed = true;
   const credit = 0;
@@ -53,6 +53,7 @@ const createUser = async (req, res) => {
   const favourite = [];
   const processing = false;
   const paid_items = [];
+  const dob = "1999-01-08";
 
   const salt = await bcrypt.genSalt();
   const hashedPassword = await bcrypt.hash(password, salt);
